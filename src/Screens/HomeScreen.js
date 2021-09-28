@@ -14,10 +14,27 @@ export default class HomeScreen extends Component {
         this.state = {
             name: "",
             amount: [],
+            isLoading:true
         }
         this.getUser()
         this.getAmount()
+        this.getLatestTransaction()
     }
+
+    getLatestTransaction = async () => {
+        let data = await AsyncStorage.getItem("@my_wallet_data")
+        if(data != null){
+             let result = JSON.parse(data)
+             this.trans = result
+             this.setState({isLoading:false})
+        }
+        else
+        {
+            this.setState({isLoading:false})
+        }
+    }
+
+
     getAmount = async () => {
         let data = await AsyncStorage.getItem("@amount")
         let data_json = JSON.parse(data)
@@ -87,10 +104,11 @@ export default class HomeScreen extends Component {
     // }
     show=()=>{
         let arr=[]
-        for(let i = 0; i <this.state.amount.length; i++) {
+        this.trans = this.trans.reverse()
+        for(let i = 0; i < this.trans.length ; i++) {
             arr.push(
-                <View key={i} style={styles.card}>
-                    <Text style={{fontSize:20,color:'white'}}>{this.trans}</Text>
+                <View key={i} style={ this.trans[i]  > 0 ? styles.card : styles.card_danger}>
+                    <Text style={{fontSize:20,color:'white'}}>{this.trans[i]}</Text>
                 </View>
             )
         }
@@ -128,7 +146,9 @@ export default class HomeScreen extends Component {
                 <Text style={{fontSize:18,color:"white",margin:20}}>Recent Transactions</Text>
                 <View style={styles.recent}>
                 <ScrollView vertical="true" style={styles.recent}>
-                    {this.show()}
+                    {
+                      this.state.isLoading == true ? <Text>Loading</Text> : this.show()
+                    }
                 </ScrollView>
                 </View>
             </View>
@@ -201,7 +221,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 10,
         lineHeight:2
-    }  , card: {
+    }  
+    , 
+    card: {
         width: '100%',
         height: 60,
         backgroundColor: 'teal',
@@ -209,8 +231,20 @@ const styles = StyleSheet.create({
         padding: 10,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
-        borderLeftWidth: 2,
+        borderLeftWidth: 4,
         borderColor: 'green',
+        marginTop: 10,
+    },
+    card_danger: {
+        width: '100%',
+        height: 60,
+        backgroundColor: 'teal',
+        justifyContent: 'center',
+        padding: 10,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+        borderLeftWidth: 4,
+        borderColor: 'red',
         marginTop: 10,
     },
 })

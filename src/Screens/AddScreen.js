@@ -9,7 +9,7 @@ export default class AddScreen extends Component {
         this.navigation = props.navigation
         this.state = {
             tap: null,
-            amount: []
+            amount: 0
         }
         this.getData()
     }
@@ -19,18 +19,38 @@ export default class AddScreen extends Component {
         this.setState({ tap: data_js.tap })
     }
     change=(val) => {
-        let arr=[]
-        arr.push(val)
-        this.setState({amount: arr})
-        console.log(arr);
+        this.setState({amount: val})
     }
     add = () => {
-        this.addAmount()
-        this.navigation.replace("Home")
+         this.storeData()
     }
+    storeData = async () => {
+            let amount = this.state.amount
+            if(this.state.tap == 0){
+                amount = amount * -1
+            }
+         let data = await AsyncStorage.getItem("@my_wallet_data")
+         if(data != null) {
+              let result = JSON.parse(data)
+              result.push(amount)
+              result = JSON.stringify(result)
+              await AsyncStorage.setItem("@my_wallet_data",result)
+              this.navigation.replace("Home")
+         }
+         else
+         {
+             let result = []
+             result.push(amount)
+             result = JSON.stringify(result)
+             await AsyncStorage.setItem("@my_wallet_data",result)
+             this.navigation.replace("Home")
+         }
+    }
+
     addAmount = async () => {
+      
         let data = {
-            amount:this.state.amount
+            amount:amount
         }
         let data_json = JSON.stringify(data)
         AsyncStorage.setItem("@amount", data_json)
