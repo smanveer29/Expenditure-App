@@ -8,39 +8,31 @@ export default class HomeScreen extends Component {
     name = ""
     navigation = ""
     trans = []
+    income = 0
+    expense = 0
     constructor(props) {
         super(props)
         this.navigation = props.navigation
         this.state = {
             name: "",
             amount: [],
-            isLoading:true
+            isLoading: true,
         }
         this.getUser()
-        this.getAmount()
         this.getLatestTransaction()
     }
 
     getLatestTransaction = async () => {
         let data = await AsyncStorage.getItem("@my_wallet_data")
-        if(data != null){
-             let result = JSON.parse(data)
-             this.trans = result
-             this.setState({isLoading:false})
+        if (data != null) {
+            let result = JSON.parse(data)
+            this.trans = result
+            this.setState({ isLoading: false })
         }
-        else
-        {
-            this.setState({isLoading:false})
+        else {
+            this.trans=null
+            this.setState({ isLoading: false })
         }
-    }
-
-
-    getAmount = async () => {
-        let data = await AsyncStorage.getItem("@amount")
-        let data_json = JSON.parse(data)
-        this.trans.push(data_json.amount)
-        this.setState({ amount: data_json.amount })
-        console.log(data_json);
     }
     getUser = async () => {
         let data = await AsyncStorage.getItem("@user")
@@ -48,15 +40,15 @@ export default class HomeScreen extends Component {
         this.setState({ name: data_js.userName })
     }
     add = () => {
-        this.addIncome(1)
+        this.addAmount(1)
         this.navigation.navigate("Add")
     }
     sub = () => {
-        this.addExpense(0)
+        this.addAmount(0)
         this.navigation.navigate("Add")
     }
-    addExpense = async (flag) => {
-        let store = 
+    addAmount = async (flag) => {
+        let store =
         {
             tap: flag
         }
@@ -64,53 +56,20 @@ export default class HomeScreen extends Component {
         AsyncStorage.setItem("@tap", data_json)
 
     }
-    addIncome = async (flag) => {
-        let store = {
-            tap: flag
-        }
-        let data_json = JSON.stringify(store)
-        AsyncStorage.setItem("@tap", data_json)
-    }
     logout = () => {
         AsyncStorage.removeItem("@user")
         this.navigation.replace("Splash")
     }
-    // pay=()=>{
-    //     let options = {
-    //         description: 'Donation',
-    //         image: 'https://i.imgur.com/3g7nmJC.png',
-    //         currency: 'INR',
-    //         key: 'rzp_test_DNUEkkoKK6IdYK', // Your api key
-    //         amount: parseInt(this.state.amount) * 100 ,
-    //         name: 'Manveer',
-    //         prefill: {
-    //           email: 'manveer@gmail.com',
-    //           contact: '1234567890',
-    //           name: 'Manveer'
-    //         },
-    //         theme: {color: '#F37254'}
-    //       }
-
-    //       RazorpayCheckout.open(options)
-    //       .then((res) => {
-    //             // handle success
-    //             alert(`Success: ${res.razorpay_payment_id}`);
-    //           })
-    //         .catch((e) => {
-    //             // handle failure
-    //             console.log(`Error: ${e}`);
-    //          });
-
-    // }
-    show=()=>{
-        let arr=[]
+    show = () => {
+        let arr = []
         this.trans = this.trans.reverse()
-        for(let i = 0; i < this.trans.length ; i++) {
+        for (let i = 0; i < this.trans.length; i++) {
             arr.push(
-                <View key={i} style={ this.trans[i]  > 0 ? styles.card : styles.card_danger}>
-                    <Text style={{fontSize:20,color:'white'}}>{this.trans[i]}</Text>
+                <View key={i} style={this.trans[i] > 0 ? styles.card : styles.card_danger}>
+                    <Text style={{ fontSize: 20, color: 'white' }}>{this.trans[i]}</Text>
                 </View>
             )
+
         }
         return arr
     }
@@ -129,27 +88,37 @@ export default class HomeScreen extends Component {
                     </TouchableOpacity>
                 </View>
 
-
                 <View style={styles.btnGroup}>
-                    <TouchableOpacity style={styles.btn} onPress={this.add}>
-                        <Image style={styles.img} source={{ uri: "https://media.istockphoto.com/vectors/cost-symbol-increase-icon-vector-symbol-image-isolated-on-background-vector-id1168793313?b=1&k=20&m=1168793313&s=612x612&w=0&h=Q9CXCWcWGKxW0ntbqR67gbAp9PsI2-9avgfcpVc89rQ=" }} />
-                        <Text style={styles.text}>Income</Text>
+                    <TouchableOpacity style={styles.incBtn} onPress={this.add}>
+                        <Image style={styles.img} source={{ uri: "https://cdn-icons-png.flaticon.com/128/4721/4721777.png" }} />
+
+                        <View style={{ flexDirection: 'column' }}>
+                            <Text style={styles.text}>Income</Text>
+                            <Text style={{ fontSize: 23 }}>{this.income}</Text>
+                        </View>
+
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.btn} onPress={this.sub}>
-                        <Image style={styles.img} source={{ uri: "https://media.istockphoto.com/vectors/cost-symbol-increase-icon-vector-symbol-image-isolated-on-background-vector-id1168793313?b=1&k=20&m=1168793313&s=612x612&w=0&h=Q9CXCWcWGKxW0ntbqR67gbAp9PsI2-9avgfcpVc89rQ=" }} />
-                        <Text style={styles.text}>Expenses</Text>
+                    <TouchableOpacity style={styles.expBtn} onPress={this.sub}>
+                        <Image style={styles.img} source={{ uri: "https://png.pngtree.com/png-vector/20210214/ourmid/pngtree-red-arrow-down-png-image_2921045.jpg" }} />
+                        <View style={{ flexDirection: 'column' }}>
+                            <Text style={styles.text}>Expense</Text>
+                            <Text style={{ fontSize: 23 }}>{this.expense}</Text>
+                        </View>
                     </TouchableOpacity>
-
-
                 </View>
-                <Text style={{fontSize:18,color:"white",margin:20}}>Recent Transactions</Text>
+
                 <View style={styles.recent}>
-                <ScrollView vertical="true" style={styles.recent}>
-                    {
-                      this.state.isLoading == true ? <Text>Loading</Text> : this.show()
-                    }
-                </ScrollView>
+                    <Text style={{ fontSize: 20, color: "white" }}>Recent Transactions</Text>
+                    <ScrollView vertical="true" >
+                        {
+                            this.state.isLoading == true ? <Text>Loading</Text> : this.show()
+                        }
+                    </ScrollView>
+                </View>
+
+                <View style={styles.monthly}>
+                <Text>HGello</Text>
                 </View>
             </View>
         )
@@ -159,43 +128,56 @@ const styles = StyleSheet.create({
     homeCont: {
         flex: 1,
         alignItems: 'center',
-        padding: 20,
-        backgroundColor: "#6D8299"
+        backgroundColor: "#082032",
+        paddingTop: 40,
     },
     header: {
         width: '90%',
-        height: 70,
+        height: 40,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 40
+        marginBottom: 30
     },
     logo: {
         width: 50,
         height: 50,
         borderRadius: 50
     },
-    btn: {
+    incBtn: {
         flexDirection: "row",
-        width: 150,
-        height: 50,
+        width: 170,
+        height: 60,
         margin: 10,
         padding: 10,
         alignItems: 'center',
-        backgroundColor: "teal",
-        justifyContent: 'space-around',
-        borderRadius: 5,
+        backgroundColor: '#5E8B7E',
+        justifyContent: 'space-evenly',
+        borderRadius: 6,
+        elevation: 10,
+    },
+    expBtn: {
+        flexDirection: "row",
+        width: 170,
+        height: 60,
+        margin: 10,
+        padding: 10,
+        alignItems: 'center',
+        backgroundColor: '#F54748',
+        justifyContent: 'space-evenly',
+        borderRadius: 6,
         elevation: 10,
     },
     text: {
-        color: "white",
+        color: "#293B5F",
         fontSize: 17
     },
     btnGroup: {
         alignItems: 'center',
         justifyContent: 'center',
         width: "80%",
-        flexDirection: "row", marginBottom: 60
+        flexDirection: "row",
+        marginBottom: 20
     },
     inputGrp: {
         alignItems: 'center',
@@ -215,36 +197,45 @@ const styles = StyleSheet.create({
         borderRadius: 50,
     },
     recent: {
+        height: 300,
         width: "100%",
-        height: 500,
         padding: 20,
-        backgroundColor: 'white',
         borderRadius: 10,
-        lineHeight:2
-    }  
-    , 
+    }
+    ,
     card: {
         width: '100%',
-        height: 60,
-        backgroundColor: 'teal',
+        height: 70,
+        backgroundColor: '#5E8B7E',
         justifyContent: 'center',
         padding: 10,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
         borderLeftWidth: 4,
+        borderTopRightRadius: 10,
         borderColor: 'green',
         marginTop: 10,
     },
     card_danger: {
         width: '100%',
-        height: 60,
-        backgroundColor: 'teal',
+        height: 70,
+        backgroundColor: '#F54748',
         justifyContent: 'center',
         padding: 10,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
+        borderTopRightRadius: 10,
         borderLeftWidth: 4,
         borderColor: 'red',
         marginTop: 10,
     },
+    monthly:{
+        flex:2,
+        width:"100%",
+        backgroundColor:'#DFEEEA',
+        elevation: 10,
+        padding:20,
+        borderTopLeftRadius:20,
+        borderTopRightRadius:20,
+    }
 })

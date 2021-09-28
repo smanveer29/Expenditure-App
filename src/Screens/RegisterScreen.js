@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { Component } from 'react'
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import axios from 'axios'
 
 export default class RegisterScreen extends Component {
@@ -23,13 +23,8 @@ export default class RegisterScreen extends Component {
             alert("Please fill all feilds")
         }
         else{
-            this.register()
+            this.send()
         }
-    }
-    register=()=>{
-        this.send()
-        this.store()
-        this.navigation.replace("Home")
     }
     store= async (flag)=>{
         let data={
@@ -63,17 +58,18 @@ export default class RegisterScreen extends Component {
     }
     render() {
         return (
-            <View style={styles.container}>
-                <TextInput placeholder="Name" onChangeText={(e) => this.setState({ name: e })} style={styles.input}></TextInput>
-                <TextInput placeholder="Email" onChangeText={(e) => this.setState({ email: e })} style={styles.input}></TextInput>
-                <TextInput placeholder="Mobile Phone " onChangeText={(e) => this.setState({ mobile: e })} style={styles.input}></TextInput>
-                <TextInput placeholder="Password" onChangeText={(e) => this.setState({ password: e })} secureTextEntry style={styles.input}></TextInput>
-                <TextInput placeholder="Confirm Password" onChangeText={(e) => this.setState({ confirmPassword: e })} secureTextEntry style={styles.input}></TextInput>
+            <KeyboardAvoidingView style={styles.container}>
+            <Text style={{fontSize:23,color:'white',textTransform:'uppercase',marginBottom:70}}>Register Here</Text>
+                <TextInput placeholder="Name" placeholderTextColor="white" onChangeText={(e) => this.setState({ name: e })} style={styles.input}></TextInput>
+                <TextInput placeholder="Email" placeholderTextColor="white" onChangeText={(e) => this.setState({ email: e })} style={styles.input}></TextInput>
+                <TextInput placeholder="Mobile Phone " placeholderTextColor="white" onChangeText={(e) => this.setState({ mobile: e })} style={styles.input}></TextInput>
+                <TextInput placeholder="Password" placeholderTextColor="white" onChangeText={(e) => this.setState({ password: e })} secureTextEntry style={styles.input}></TextInput>
+                <TextInput placeholder="Confirm Password" placeholderTextColor="white"  onChangeText={(e) => this.setState({ confirmPassword: e })} secureTextEntry style={styles.input}></TextInput>
 
                 <TouchableOpacity style={styles.btn}  onPress={this.check}>
                     <Text style={styles.text}>Sign Up</Text>
                 </TouchableOpacity>
-            </View>
+            </KeyboardAvoidingView>
         )
     }
 }
@@ -81,20 +77,22 @@ const styles = StyleSheet.create({
     container:{
         flex: 1,
         alignItems: "center",
-        justifyContent: 'center',
-        backgroundColor: "#22577A"
+        justifyContent:'center',
+        backgroundColor:'#082032'
     },
     input: {
         borderStyle: "solid",
         borderWidth: 1,
-        borderRadius: 30,
-        width: "80%",
+        borderRadius: 10,
+        width: "90%",
         padding: 15,
         margin: 10,
+        color:'white',
+        backgroundColor:'#316B83'
     },
     btn: {
         width: "60%",
-        backgroundColor: "#00A19D",
+        backgroundColor: "#316B83",
         alignItems: "center",
         padding: 15,
         margin: 60,

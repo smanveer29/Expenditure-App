@@ -55,8 +55,8 @@ export default class LoginScreen extends Component {
         return (
             <View style={styles.container}>
             
-                <TextInput placeholder="Username" onChangeText={(e) => this.setState({ username: e })} style={styles.input}></TextInput>
-                <TextInput placeholder="Password" onChangeText={(e) => this.setState({ password: e })} secureTextEntry style={styles.input}></TextInput>
+                <TextInput placeholder="Username" placeholderTextColor="white" onChangeText={(e) => this.setState({ username: e })} style={styles.input}></TextInput>
+                <TextInput placeholder="Password" placeholderTextColor="white" onChangeText={(e) => this.setState({ password: e })} secureTextEntry style={styles.input}></TextInput>
                 <TouchableOpacity style={styles.btn} onPress={this.check}>
                     <Text style={styles.text} >Login</Text>
                 </TouchableOpacity>
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         justifyContent: 'center',
-        backgroundColor: "#22577A"
+        backgroundColor:'#082032'
     },
     img:{
         width:100,
@@ -97,14 +97,16 @@ const styles = StyleSheet.create({
     input: {
         borderStyle: "solid",
         borderWidth: 1,
-        borderRadius: 30,
+        borderRadius: 10,
         width: "80%",
         padding: 15,
         margin: 20,
+        color: "white",
+        backgroundColor:'#345B63'
     },
     btn: {
-        width: "60%",
-        backgroundColor: "#00A19D",
+        width: "40%",
+        backgroundColor: "#345B63",
         alignItems: "center",
         padding: 15,
         margin: 10,
@@ -120,8 +122,8 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     regBtn: {
-        width: 150,
-        backgroundColor: "#00A16D",
+        width: 100,
+        backgroundColor: "#345B63",
         alignItems: "center",
         justifyContent: "space-between",
         padding: 8,
@@ -130,7 +132,7 @@ const styles = StyleSheet.create({
         elevation: 10
     },
     text: {
-        fontSize: 18,
+        fontSize: 15,
         textTransform: "uppercase",
         color: "white"
     }
