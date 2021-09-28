@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, ScrollView, } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, ScrollView, StatusBar, ActivityIndicator, } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Transactions from '../components/Transactions'
 import RazorpayCheckout from 'react-native-razorpay';
 
 export default class HomeScreen extends Component {
@@ -17,11 +16,31 @@ export default class HomeScreen extends Component {
             name: "",
             amount: [],
             isLoading: true,
+            income:0,
+            expense: 0
         }
         this.getUser()
         this.getLatestTransaction()
+        this.get()
     }
-
+    get=async () => {
+        let arr=[]
+        let income=0
+        let expense=0
+        let temp=await AsyncStorage.getItem("@my_wallet_data")
+        arr=JSON.parse(temp)
+        for(let i = 0; i <arr.length;i++) {
+            if(arr[i] > 0){
+                income=income + parseInt(arr[i])
+                this.setState({income:income
+                })
+            }
+            else{
+               expense=expense + parseInt(arr[i])
+               this.setState({expense:expense})
+            }
+        }
+    }
     getLatestTransaction = async () => {
         let data = await AsyncStorage.getItem("@my_wallet_data")
         if (data != null) {
@@ -30,7 +49,7 @@ export default class HomeScreen extends Component {
             this.setState({ isLoading: false })
         }
         else {
-            this.trans=null
+            this.trans = null
             this.setState({ isLoading: false })
         }
     }
@@ -76,6 +95,10 @@ export default class HomeScreen extends Component {
     render() {
         return (
             <View style={styles.homeCont}>
+                <StatusBar
+                    backgroundColor="#082032"
+                    barStyle="auto"
+                />
 
                 <View style={styles.header}>
                     <View style={styles.textCont}>
@@ -94,7 +117,11 @@ export default class HomeScreen extends Component {
 
                         <View style={{ flexDirection: 'column' }}>
                             <Text style={styles.text}>Income</Text>
-                            <Text style={{ fontSize: 23 }}>{this.income}</Text>
+                            {this.state.isLoading ? 
+                            <ActivityIndicator size="small" color="#0000ff" />
+                            : 
+                            <Text style={{ fontSize: 23 ,color:'white',fontWeight:"900"}}>{this.state.income}</Text>
+                            }
                         </View>
 
                     </TouchableOpacity>
@@ -103,7 +130,11 @@ export default class HomeScreen extends Component {
                         <Image style={styles.img} source={{ uri: "https://png.pngtree.com/png-vector/20210214/ourmid/pngtree-red-arrow-down-png-image_2921045.jpg" }} />
                         <View style={{ flexDirection: 'column' }}>
                             <Text style={styles.text}>Expense</Text>
-                            <Text style={{ fontSize: 23 }}>{this.expense}</Text>
+                            {this.state.isLoading ? 
+                            <ActivityIndicator size="small" color="#0000ff" />
+                            : 
+                            <Text style={{ fontSize: 23 ,color: 'white',fontWeight:"900"}}>{this.state.expense *-1}</Text>
+                            }
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -118,7 +149,7 @@ export default class HomeScreen extends Component {
                 </View>
 
                 <View style={styles.monthly}>
-                <Text>HGello</Text>
+                    <Text>HGello</Text>
                 </View>
             </View>
         )
@@ -169,7 +200,7 @@ const styles = StyleSheet.create({
         elevation: 10,
     },
     text: {
-        color: "#293B5F",
+        color: "#eee",
         fontSize: 17
     },
     btnGroup: {
@@ -229,13 +260,13 @@ const styles = StyleSheet.create({
         borderColor: 'red',
         marginTop: 10,
     },
-    monthly:{
-        flex:2,
-        width:"100%",
-        backgroundColor:'#DFEEEA',
+    monthly: {
+        flex: 2,
+        width: "100%",
+        backgroundColor: '#DFEEEA',
         elevation: 10,
-        padding:20,
-        borderTopLeftRadius:20,
-        borderTopRightRadius:20,
+        padding: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
     }
 })
