@@ -35,19 +35,30 @@ export default class AddScreen extends Component {
             amount = amount * -1
             note="-"+note
         }
+        else{
+            amount = amount
+            note="+"+note
+        }
         let data = await AsyncStorage.getItem("@my_wallet_data")
-        if (data != null) {
+        let notes = await AsyncStorage.getItem("@note")
+        if (data != null && notes!=null) {
             let result = JSON.parse(data)
+            let noteRes=JSON.parse(notes)
             result.push(amount)
+            noteRes.push(note)
             result = JSON.stringify(result)
             await AsyncStorage.setItem("@my_wallet_data", result)
+            await AsyncStorage.setItem("@note", JSON.stringify(noteRes))
             this.navigation.replace("Home")
         }
         else {
             let result = []
+            let notes=[]
             result.push(amount)
+            notes.push(note)
             result = JSON.stringify(result)
             await AsyncStorage.setItem("@my_wallet_data", result)
+            await AsyncStorage.setItem("@note", JSON.stringify(notes))
             this.navigation.replace("Home")
         }
     }

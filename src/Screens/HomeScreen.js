@@ -8,6 +8,7 @@ export default class HomeScreen extends Component {
     name = ""
     navigation = ""
     trans = []
+    notes = []
     income = 0
     expense = 0
     constructor(props) {
@@ -47,11 +48,14 @@ export default class HomeScreen extends Component {
     getLatestTransaction = async () => {
         this.total()
         let data = await AsyncStorage.getItem("@my_wallet_data")
-        if (data != null) 
+        let noteData=await AsyncStorage.getItem("@note")
+        if (data != null && noteData != null) 
         {
             let result = JSON.parse(data)
             this.trans = result
+            this.notes=JSON.parse(noteData)
             console.log(result)
+            console.log(JSON.parse(noteData))
             this.setState({ isLoading: false })
         }
         else {
@@ -97,12 +101,21 @@ export default class HomeScreen extends Component {
     }
     show = () => {
         let arr = []
-        if(this.trans!=null) {
+        if(this.trans!=null && this.notes!=null) 
+        {
             this.trans = this.trans.reverse()
+            this.notes = this.notes.reverse()
             for (let i = 0; i < this.trans.length; i++) {
                 arr.push(
                     <View key={i} style={this.trans[i] > 0 ? styles.card : styles.card_danger}>
-                        <Text style={{ fontSize: 20, color: 'white' }}>{this.trans[i]}</Text>
+                        <Text style={{ fontSize: 20, color: 'white' }}>{
+                            this.trans[i]>0 
+                            ? 
+                            this.trans[i]
+                            :
+                            this.trans[i].toString().slice(1)
+                            }</Text>
+                        <Text style={{ fontSize: 20, color: 'white' }}>{this.notes[i].slice(1)}</Text>
                     </View>
                 )
             }
@@ -280,7 +293,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 70,
         backgroundColor: '#5E8B7E',
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
         padding: 10,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
@@ -293,7 +306,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 70,
         backgroundColor: '#F54748',
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
         padding: 10,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
