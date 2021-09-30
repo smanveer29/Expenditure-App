@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, ScrollView, StatusBar, ActivityIndicator, } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RazorpayCheckout from 'react-native-razorpay';
+import { TestIds, BannerAd, BannerAdSize} from '@react-native-firebase/admob';
 
 export default class HomeScreen extends Component {
     name = ""
@@ -17,39 +18,43 @@ export default class HomeScreen extends Component {
             amount: [],
             isLoading: true,
             income:0,
-            expense: 0
+            expense: 0,
+            msg:''
         }
         this.getUser()
         this.getLatestTransaction()
-        this.get()
     }
-    get=async () => {
+    total=async () => {
         let arr=[]
         let income=0
         let expense=0
         let temp=await AsyncStorage.getItem("@my_wallet_data")
-        arr=JSON.parse(temp)
-        for(let i = 0; i <arr.length;i++) {
-            if(arr[i] > 0){
-                income=income + parseInt(arr[i])
-                this.setState({income:income
-                })
-            }
-            else{
-               expense=expense + parseInt(arr[i])
-               this.setState({expense:expense})
+        if(temp!=null){
+            arr=JSON.parse(temp)
+            for(let i = 0; i <arr.length;i++) {
+                if(arr[i] > 0){
+                    income=income + parseInt(arr[i])
+                    this.setState({income:income
+                    })
+                }
+                else{
+                   expense=expense + parseInt(arr[i])
+                   this.setState({expense:expense})
+                }
             }
         }
     }
     getLatestTransaction = async () => {
+        this.total()
         let data = await AsyncStorage.getItem("@my_wallet_data")
-        if (data != null) {
+        if (data != null) 
+        {
             let result = JSON.parse(data)
             this.trans = result
+            console.log(result)
             this.setState({ isLoading: false })
         }
         else {
-            this.trans = null
             this.setState({ isLoading: false })
         }
     }
@@ -67,13 +72,24 @@ export default class HomeScreen extends Component {
         this.navigation.navigate("Add")
     }
     addAmount = async (flag) => {
-        let store =
-        {
+        let store ={
             tap: flag
         }
         let data_json = JSON.stringify(store)
         AsyncStorage.setItem("@tap", data_json)
 
+    }
+
+    balance=()=>{
+        let temp=[]
+        if(this.state.income>this.state.expense) {
+            temp.push(
+                <View>
+                    <Text>{this.state.income-this.state.expense}</Text>
+                </View>
+            )
+        }
+        return temp
     }
     logout = () => {
         AsyncStorage.removeItem("@user")
@@ -81,16 +97,28 @@ export default class HomeScreen extends Component {
     }
     show = () => {
         let arr = []
-        this.trans = this.trans.reverse()
-        for (let i = 0; i < this.trans.length; i++) {
+        if(this.trans!=null) {
+            this.trans = this.trans.reverse()
+            for (let i = 0; i < this.trans.length; i++) {
+                arr.push(
+                    <View key={i} style={this.trans[i] > 0 ? styles.card : styles.card_danger}>
+                        <Text style={{ fontSize: 20, color: 'white' }}>{this.trans[i]}</Text>
+                    </View>
+                )
+            }
+        }
+        else{
             arr.push(
-                <View key={i} style={this.trans[i] > 0 ? styles.card : styles.card_danger}>
-                    <Text style={{ fontSize: 20, color: 'white' }}>{this.trans[i]}</Text>
+                <View style={styles.card}>
+                    <Text style={{ fontSize: 20, color: 'white' }}>No Transactions</Text>
                 </View>
             )
-
         }
         return arr
+    }
+    clear=async () => {
+        AsyncStorage.removeItem("@my_wallet_data")
+        this.navigation.replace("Home")
     }
     render() {
         return (
@@ -104,6 +132,7 @@ export default class HomeScreen extends Component {
                     <View style={styles.textCont}>
                         <Text style={{ fontSize: 14, color: 'white' }}>Welcome</Text>
                         <Text style={{ fontSize: 26, color: 'white', fontWeight: 'bold', textTransform: 'uppercase' }}>{this.state.name}</Text>
+                        {/* <Text style={{ fontSize: 14, color: 'white' }}>{this.balance}</Text> */}
                     </View>
 
                     <TouchableOpacity onPress={this.logout}>
@@ -115,7 +144,7 @@ export default class HomeScreen extends Component {
                     <TouchableOpacity style={styles.incBtn} onPress={this.add}>
                         <Image style={styles.img} source={{ uri: "https://cdn-icons-png.flaticon.com/128/4721/4721777.png" }} />
 
-                        <View style={{ flexDirection: 'column' }}>
+                        <View style={{ flexDirection: 'column'}}>
                             <Text style={styles.text}>Income</Text>
                             {this.state.isLoading ? 
                             <ActivityIndicator size="small" color="#0000ff" />
@@ -128,10 +157,10 @@ export default class HomeScreen extends Component {
 
                     <TouchableOpacity style={styles.expBtn} onPress={this.sub}>
                         <Image style={styles.img} source={{ uri: "https://png.pngtree.com/png-vector/20210214/ourmid/pngtree-red-arrow-down-png-image_2921045.jpg" }} />
-                        <View style={{ flexDirection: 'column' }}>
+                        <View style={{ flexDirection: 'column'}}>
                             <Text style={styles.text}>Expense</Text>
                             {this.state.isLoading ? 
-                            <ActivityIndicator size="small" color="#0000ff" />
+                            <ActivityIndicator size="small" color="#0000ff"/>
                             : 
                             <Text style={{ fontSize: 23 ,color: 'white',fontWeight:"900"}}>{this.state.expense *-1}</Text>
                             }
@@ -140,7 +169,12 @@ export default class HomeScreen extends Component {
                 </View>
 
                 <View style={styles.recent}>
-                    <Text style={{ fontSize: 20, color: "white" }}>Recent Transactions</Text>
+                <View style={{flexDirection: 'row',justifyContent:'space-between'}}>
+                    <Text style={{ fontSize: 21, color: "white" }}>Recent Transactions</Text>
+                    <TouchableOpacity onPress={this.clear}>
+                        <Text style={{ fontSize: 14, color: "white" }}>Clear</Text>
+                    </TouchableOpacity>
+                </View>
                     <ScrollView vertical="true" >
                         {
                             this.state.isLoading == true ? <Text>Loading</Text> : this.show()
@@ -149,7 +183,15 @@ export default class HomeScreen extends Component {
                 </View>
 
                 <View style={styles.monthly}>
-                    <Text>HGello</Text>
+                <BannerAd
+                    unitId={"ca-app-pub-3940256099942544/6300978111"}
+                    size={BannerAdSize.SMART_BANNER}
+                    requestOptions={
+                        {
+                             requestNonPersonalizedAdsOnly: true
+                        }
+                     }
+                    />
                 </View>
             </View>
         )

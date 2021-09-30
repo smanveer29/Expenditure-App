@@ -28,7 +28,7 @@ class App extends Component {
               <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreens} />
               <Stack.Screen options={{ headerShown: false }} name="Register" component={RegisterScreen} />
               <Stack.Screen options={{ headerShown: false }} name="Home" component={HomeScreen} />
-              <Stack.Screen  name="Add" component={AddScreen} />
+              <Stack.Screen  options={{ headerShown: false }} name="Add" component={AddScreen} />
             </Stack.Navigator>
         </NavigationContainer>
       </View>
